@@ -164,9 +164,9 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(232, 193, 112, 0.2),
-                inset 0 0 60px rgba(0, 0, 0, 0.1);
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 0 2px rgba(180, 140, 60, 0.4),
+                0 0 0 4px rgba(80, 50, 10, 0.3);
         }
         canvas {
             display: block;
@@ -429,32 +429,32 @@
         }
 
         function draw() {
-            // 棋盘背景 — 木纹渐变
+            // 棋盘背景 — 加深木纹渐变，提升对比度
             const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            grad.addColorStop(0, '#dcc06a');
-            grad.addColorStop(0.5, '#c89b3c');
-            grad.addColorStop(1, '#b88a2a');
+            grad.addColorStop(0, '#c9a84c');
+            grad.addColorStop(0.5, '#b8943a');
+            grad.addColorStop(1, '#a88428');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 木纹纹理线
-            ctx.strokeStyle = 'rgba(120, 80, 20, 0.07)';
+            // 木纹纹理线（更明显）
+            ctx.strokeStyle = 'rgba(100, 65, 15, 0.12)';
             ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 3) {
+            for (let i = 0; i < canvas.width; i += 4) {
                 ctx.beginPath();
                 ctx.moveTo(i, 0);
-                ctx.lineTo(i + 8, canvas.height);
+                ctx.lineTo(i + 10, canvas.height);
                 ctx.stroke();
             }
 
-            // 外边框
-            ctx.strokeStyle = 'rgba(80, 50, 10, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(PAD - 8, PAD - 8, (SIZE - 1) * CELL + 16, (SIZE - 1) * CELL + 16);
+            // 外边框（加深加粗）
+            ctx.strokeStyle = 'rgba(60, 35, 8, 0.7)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(PAD - 10, PAD - 10, (SIZE - 1) * CELL + 20, (SIZE - 1) * CELL + 20);
 
-            // 网格线
-            ctx.strokeStyle = 'rgba(60, 40, 10, 0.55)';
-            ctx.lineWidth = 1;
+            // 网格线（加粗加深）
+            ctx.strokeStyle = 'rgba(50, 30, 8, 0.75)';
+            ctx.lineWidth = 1.2;
             for (let i = 0; i < SIZE; i++) {
                 ctx.beginPath();
                 ctx.moveTo(PAD, PAD + i * CELL);
@@ -466,20 +466,20 @@
                 ctx.stroke();
             }
 
-            // 星位（天元 + 4个角星）
+            // 星位（更大更明显）
             const stars = [[3,3],[3,9],[3,15],[9,3],[9,9],[9,15],[15,3],[15,9],[15,15]];
             for (const [r, c] of stars) {
                 const x = PAD + c * CELL;
                 const y = PAD + r * CELL;
-                // 外圈光晕
+                // 外圈光晕（更明显）
                 ctx.beginPath();
-                ctx.arc(x, y, 6, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(60, 40, 10, 0.15)';
+                ctx.arc(x, y, 7, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(50, 30, 8, 0.2)';
                 ctx.fill();
-                // 星位点
+                // 星位点（更大更黑）
                 ctx.beginPath();
-                ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-                ctx.fillStyle = '#4a3008';
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#3a2206';
                 ctx.fill();
             }
 
@@ -492,14 +492,14 @@
                 }
             }
 
-            // 胜利连线
+            // 胜利连线（更清晰）
             if (winLine) {
                 ctx.save();
-                ctx.strokeStyle = 'rgba(255, 60, 60, 0.85)';
-                ctx.lineWidth = 5;
+                ctx.strokeStyle = 'rgba(255, 50, 50, 0.95)';
+                ctx.lineWidth = 6;
                 ctx.lineCap = 'round';
-                ctx.shadowColor = 'rgba(255, 60, 60, 0.6)';
-                ctx.shadowBlur = 10;
+                ctx.shadowColor = 'rgba(255, 50, 50, 0.8)';
+                ctx.shadowBlur = 12;
                 ctx.beginPath();
                 const first = winLine[0];
                 const last = winLine[winLine.length - 1];
@@ -509,14 +509,14 @@
                 ctx.restore();
             }
 
-            // 最后一手标记
+            // 最后一手标记（更明显）
             if (lastStone && !winLine) {
                 const [lr, lc] = lastStone;
                 ctx.save();
-                ctx.strokeStyle = 'rgba(255, 80, 80, 0.9)';
-                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = 'rgba(255, 60, 60, 1)';
+                ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.arc(PAD + lc * CELL, PAD + lr * CELL, STONE_R + 4, 0, Math.PI * 2);
+                ctx.arc(PAD + lc * CELL, PAD + lr * CELL, STONE_R + 5, 0, Math.PI * 2);
                 ctx.stroke();
                 ctx.restore();
             }
@@ -526,35 +526,37 @@
             const x = PAD + c * CELL;
             const y = PAD + r * CELL;
 
-            // 阴影
+            // 阴影（更明显）
             ctx.save();
             ctx.beginPath();
-            ctx.arc(x + 1.5, y + 1.5, STONE_R + 1, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.arc(x + 2, y + 2, STONE_R + 1, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
             ctx.fill();
             ctx.restore();
 
-            // 棋子本体
+            // 棋子本体（增强对比度）
             ctx.beginPath();
             ctx.arc(x, y, STONE_R, 0, Math.PI * 2);
             if (player === 1) {
-                const g = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, STONE_R);
-                g.addColorStop(0, '#666');
-                g.addColorStop(0.6, '#222');
-                g.addColorStop(1, '#000');
+                // 黑子：更黑更立体
+                const g = ctx.createRadialGradient(x - 5, y - 5, 2, x, y, STONE_R);
+                g.addColorStop(0, '#555');
+                g.addColorStop(0.5, '#1a1a1a');
+                g.addColorStop(1, '#000000');
                 ctx.fillStyle = g;
             } else {
-                const g = ctx.createRadialGradient(x - 5, y - 5, 2, x, y, STONE_R);
+                // 白子：更白更清晰
+                const g = ctx.createRadialGradient(x - 6, y - 6, 3, x, y, STONE_R);
                 g.addColorStop(0, '#ffffff');
-                g.addColorStop(0.7, '#e8e8e8');
-                g.addColorStop(1, '#b8b8b8');
+                g.addColorStop(0.6, '#f5f5f5');
+                g.addColorStop(1, '#d0d0d0');
                 ctx.fillStyle = g;
             }
             ctx.fill();
 
-            // 棋子边缘
-            ctx.strokeStyle = player === 1 ? 'rgba(0,0,0,0.6)' : 'rgba(150,150,150,0.4)';
-            ctx.lineWidth = 0.5;
+            // 棋子边缘（更明显）
+            ctx.strokeStyle = player === 1 ? 'rgba(0,0,0,0.8)' : 'rgba(120,120,120,0.6)';
+            ctx.lineWidth = 1;
             ctx.stroke();
         }
 
