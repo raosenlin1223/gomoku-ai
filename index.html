@@ -95,25 +95,6 @@
             background: #2a2a4e;
             color: #e8e8e8;
         }
-        .btn-apply {
-            padding: 8px 20px;
-            font-size: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            background: linear-gradient(135deg, #e8c170, #c9952f);
-            color: #1a1a2e;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(201, 149, 47, 0.3);
-        }
-        .btn-apply:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(201, 149, 47, 0.5);
-        }
-        .btn-apply:active { transform: translateY(0); }
-
         /* ========== 信息条 ========== */
         .info-bar {
             display: flex;
@@ -341,7 +322,7 @@
             <option value="ai-medium">🟡 人机对弈 · 中级</option>
             <option value="ai-hard">🔴 人机对弈 · 高级</option>
         </select>
-        <button class="btn-apply" id="btn-apply-mode">✅ 开始对战</button>
+        <!-- 选择即生效，无需额外按钮 -->
     </div>
 
     <!-- 信息条 -->
@@ -1034,7 +1015,8 @@
             draw();
         });
 
-        document.getElementById('btn-apply-mode').addEventListener('click', () => {
+        // 选择模式后立即生效，重新开始
+        document.getElementById('mode-select').addEventListener('change', () => {
             gameMode = document.getElementById('mode-select').value;
             initBoard();
         });
