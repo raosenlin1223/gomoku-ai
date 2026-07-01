@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 标题区 -->
   <view class="header">
-    <text class="title">♟ 五子棋 · 人机对弈</text>
+    <text class="title">天天玩*五子棋</text>
     <text class="subtitle">GOMOKU AI · 19×19 标准棋盘</text>
   </view>
 
