@@ -1,5 +1,5 @@
 {
-  "description": "五子棋人机对弈小程序",
+  "description": "天天玩*五子棋小程序",
   "packOptions": {
     "ignore": [],
     "include": []
@@ -43,5 +43,5 @@
   "projectname": "gomoku-miniprogram",
   "condition": {},
   "iconPath": "images/icon.png",
-  "coverPath": "images/cover.png"
+  "coverPath": "images/cover.jpg"
 }
