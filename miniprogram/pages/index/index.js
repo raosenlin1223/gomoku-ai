@@ -35,12 +35,13 @@ Page({
     stats: { wins: 0, losses: 0, draws: 0, total: 0 },
     showStats: false,
     // AI提示
-    hintVisible: false
+    hintVisible: false,
+    // 当前执棋方（用于WXML绑定）
+    currentPlayer: 1
   },
 
   // 游戏核心状态
   board: [],
-  currentPlayer: 1,
   moveHistory: [],
   winLine: null,
   aiPlayer: 2,
@@ -207,14 +208,8 @@ Page({
     for (let i = 0; i < SIZE; i++) {
       this.board.push(new Array(SIZE).fill(0));
     }
-    this.currentPlayer = 1;
-    this.moveHistory = [];
-    this.gameOver = false;
-    this.winLine = null;
-    this.lastStone = null;
-    this.aiBusy = false;
-
     this.setData({
+      currentPlayer: 1,
       turnText: '黑棋回合（你先行）',
       aiThinking: false,
       showOverlay: false,
@@ -416,7 +411,7 @@ Page({
   // ====== 触摸事件 ======
   onCanvasTap(e) {
     if (this.gameOver || this.aiBusy) return;
-    if (this.data.mode !== 'pvp' && this.currentPlayer === this.aiPlayer) return;
+    if (this.data.mode !== 'pvp' && this.data.currentPlayer === this.aiPlayer) return;
     // 点击后隐藏提示
     if (this.data.hintVisible) {
       this.setData({ hintVisible: false });
@@ -450,9 +445,9 @@ Page({
             && this.board[row][col] === 0
             && distX < C * 0.45 && distY < C * 0.45) {
           this.playSound('place');
-          this.makeMove(row, col, this.currentPlayer);
+          this.makeMove(row, col, this.data.currentPlayer);
 
-          if (!this.gameOver && this.data.mode !== 'pvp' && this.currentPlayer === this.aiPlayer) {
+          if (!this.gameOver && this.data.mode !== 'pvp' && this.data.currentPlayer === this.aiPlayer) {
             this.triggerAI();
           }
         }
@@ -520,7 +515,7 @@ Page({
       return;
     }
 
-    this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+    this.setData({ currentPlayer: this.data.currentPlayer === 1 ? 2 : 1 });
     this.updateUI();
     this.draw();
   },
@@ -549,9 +544,9 @@ Page({
   updateUI() {
     let turnText = '';
     if (this.data.mode === 'pvp') {
-      turnText = this.currentPlayer === 1 ? '黑棋回合' : '白棋回合';
+      turnText = this.data.currentPlayer === 1 ? '黑棋回合' : '白棋回合';
     } else {
-      if (this.currentPlayer === this.humanPlayer) {
+      if (this.data.currentPlayer === this.humanPlayer) {
         turnText = '你的回合 · 执黑落子';
       } else {
         turnText = 'AI 思考中 · 执白落子';
@@ -828,7 +823,7 @@ Page({
     this.playSound('undo');
 
     if (this.data.mode !== 'pvp') {
-      if (this.moveHistory.length >= 2 && this.currentPlayer === this.humanPlayer) {
+      if (this.moveHistory.length >= 2 && this.data.currentPlayer === this.humanPlayer) {
         for (let i = 0; i < 2; i++) {
           const [r, c] = this.moveHistory.pop();
           this.board[r][c] = 0;
@@ -837,12 +832,12 @@ Page({
         const [r, c] = this.moveHistory.pop();
         this.board[r][c] = 0;
       }
-      this.currentPlayer = this.humanPlayer;
+      this.setData({ currentPlayer: this.humanPlayer });
       this.lastStone = this.moveHistory.length > 0 ? this.moveHistory[this.moveHistory.length - 1].slice(0, 2) : null;
     } else {
       const [r, c] = this.moveHistory.pop();
       this.board[r][c] = 0;
-      this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+      this.setData({ currentPlayer: this.data.currentPlayer === 1 ? 2 : 1 });
       this.lastStone = this.moveHistory.length > 0 ? this.moveHistory[this.moveHistory.length - 1].slice(0, 2) : null;
     }
 
@@ -879,7 +874,7 @@ Page({
       wx.showToast({ title: '棋谱为空', icon: 'none' });
       return;
     }
-    let text = '五子棋棋谱\n';
+    let text = '天天玩*五子棋 棋谱\n';
     text += '模式：' + this.data.modeOptions[this.data.modeIndex].label + '\n';
     text += '时间：' + this.formatTime(new Date()) + '\n\n';
     for (const item of list) {
@@ -935,7 +930,7 @@ Page({
       wx.showToast({ title: '双人对战无提示', icon: 'none' });
       return;
     }
-    if (this.currentPlayer !== this.humanPlayer) return;
+    if (this.data.currentPlayer !== this.humanPlayer) return;
 
     // 用中级AI算法找一个推荐位置
     const winMove = this.findWinningMove(this.humanPlayer);
@@ -971,16 +966,16 @@ Page({
   // ====== 分享功能 ======
   onShareAppMessage() {
     return {
-      title: '五子棋人机对弈 - 挑战AI',
+      title: '天天玩*五子棋 - 挑战AI',
       path: '/pages/index/index',
-      imageUrl: '/images/cover.png'
+      imageUrl: '/images/cover.jpg'
     };
   },
 
   onShareTimeline() {
     return {
-      title: '五子棋人机对弈 - 挑战AI',
-      imageUrl: '/images/cover.png'
+      title: '天天玩*五子棋 - 挑战AI',
+      imageUrl: '/images/cover.jpg'
     };
   }
 });
