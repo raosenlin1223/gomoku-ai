@@ -1,0 +1,132 @@
+<!-- 五子棋人机对弈 - 微信小程序版（全功能增强） -->
+<view class="container">
+  <!-- 标题区 -->
+  <view class="header">
+    <text class="title">♟ 五子棋 · 人机对弈</text>
+    <text class="subtitle">GOMOKU AI · 19×19 标准棋盘</text>
+  </view>
+
+  <!-- 控制面板 -->
+  <view class="panel">
+    <text class="panel-label">对战模式</text>
+    <picker mode="selector" range="{{modeOptions}}" range-key="label" value="{{modeIndex}}" bindchange="onModeChange">
+      <view class="picker-text">{{modeOptions[modeIndex].label}}</view>
+    </picker>
+    <!-- 音效开关 -->
+    <view class="sound-toggle" bindtap="onToggleSound">
+      <text class="sound-icon">{{soundOn ? '🔊' : '🔇'}}</text>
+    </view>
+  </view>
+
+  <!-- 信息条 -->
+  <view class="info-bar">
+    <view class="turn-display">
+      <view class="stone-dot {{currentPlayer === 1 ? 'dot-black' : 'dot-white'}}"></view>
+      <text class="turn-text">{{turnText}}</text>
+    </view>
+    <text class="ai-badge" wx:if="{{aiThinking}}">⏳ AI 思考中…</text>
+  </view>
+
+  <!-- 棋盘 -->
+  <view class="board-container" style="width:{{canvasStyleWidth}}px;height:{{canvasStyleHeight}}px;">
+    <canvas type="2d" id="boardCanvas" class="board-canvas"
+            style="width:{{canvasStyleWidth}}px;height:{{canvasStyleHeight}}px;"
+            bindtouchstart="onCanvasTap"
+            bindtouchmove="onCanvasMove"
+            bindtouchend="onCanvasLeave">
+    </canvas>
+    
+    <!-- 胜利遮罩 -->
+    <view class="overlay" wx:if="{{showOverlay}}">
+      <view class="overlay-content {{celebrate ? 'celebrate' : ''}}">
+        <text class="overlay-title">{{overlayTitle}}</text>
+        <text class="overlay-sub">{{overlaySub}}</text>
+        <view class="overlay-btn" bindtap="initBoard">🔄 再来一局</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 状态栏 -->
+  <view class="status-area">
+    <text class="status-text {{gameOver ? 'win' : ''}}">{{statusText}}</text>
+    <text class="move-count">📌 已落子 {{moveCount}} 手</text>
+  </view>
+
+  <!-- 操作按钮（增强版） -->
+  <view class="btn-group">
+    <view class="btn btn-restart" bindtap="initBoard">🔄 重新开始</view>
+    <view class="btn btn-undo" bindtap="onUndo">↩ 悔棋</view>
+    <view class="btn btn-hint" bindtap="onHint" wx:if="{{mode !== 'pvp'}}">💡 提示</view>
+  </view>
+  <view class="btn-group btn-group-secondary">
+    <view class="btn btn-record" bindtap="onShowRecord">📋 棋谱</view>
+    <view class="btn btn-stats" bindtap="onShowStats">📊 统计</view>
+    <button class="btn btn-share" open-type="share">📤 分享</button>
+  </view>
+
+  <!-- 棋谱面板 -->
+  <view class="modal-mask" wx:if="{{showRecord}}" bindtap="onHideRecord">
+    <view class="modal-content record-panel" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">📋 对局棋谱</text>
+        <view class="modal-close" bindtap="onHideRecord">✕</view>
+      </view>
+      <view class="record-list">
+        <view class="record-item {{item.isLast ? 'record-last' : ''}}" wx:for="{{recordList}}" wx:key="num">
+          <text class="record-num">{{item.num}}</text>
+          <text class="record-player {{item.player === '黑' ? 'player-black' : 'player-white'}}">{{item.player}}</text>
+          <text class="record-pos">{{item.pos}}</text>
+        </view>
+        <view class="record-empty" wx:if="{{recordList.length === 0}}">
+          <text>暂无落子记录</text>
+        </view>
+      </view>
+      <view class="record-footer">
+        <view class="btn btn-export" bindtap="onExportRecord">📋 复制棋谱</view>
+        <text class="record-total">共 {{moveCount}} 手</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计面板 -->
+  <view class="modal-mask" wx:if="{{showStats}}" bindtap="onHideStats">
+    <view class="modal-content stats-panel" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">📊 对局统计</text>
+        <view class="modal-close" bindtap="onHideStats">✕</view>
+      </view>
+      <view class="stats-grid">
+        <view class="stats-card stats-win">
+          <text class="stats-num">{{stats.wins}}</text>
+          <text class="stats-label">胜利</text>
+        </view>
+        <view class="stats-card stats-lose">
+          <text class="stats-num">{{stats.losses}}</text>
+          <text class="stats-label">失败</text>
+        </view>
+        <view class="stats-card stats-draw">
+          <text class="stats-num">{{stats.draws}}</text>
+          <text class="stats-label">平局</text>
+        </view>
+        <view class="stats-card stats-total">
+          <text class="stats-num">{{stats.total}}</text>
+          <text class="stats-label">总对局</text>
+        </view>
+      </view>
+      <!-- 胜率 -->
+      <view class="stats-rate" wx:if="{{stats.total > 0}}">
+        <text class="rate-label">胜率</text>
+        <view class="rate-bar">
+          <view class="rate-fill" style="width:{{stats.total > 0 ? (stats.wins / stats.total * 100) : 0}}%"></view>
+        </view>
+        <text class="rate-text">{{stats.total > 0 ? (stats.wins / stats.total * 100).toFixed(1) : 0}}%</text>
+      </view>
+      <view class="stats-footer">
+        <view class="btn btn-clear-stats" bindtap="onClearStats">🗑 清除统计</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页脚 -->
+  <view class="footer">玩家执黑先行 · AI 执白 · Powered by Minimax + α-β</view>
+</view>
